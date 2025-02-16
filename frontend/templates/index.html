@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Tea Wiki Q&A</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Green Tea Wiki Q&A</h1>
+        <form method="POST">
+            <input type="text" name="question" placeholder="Ask a question">
+            <button type="submit">Submit</button>
+        </form>
+        
+
+        {% if response %}
+            <h2>Answer:</h2>
+            <p>{{ response }}</p>
+        {% else %}
+            <p>Please ask a question!</p>
+        {% endif %}
+    </div>
+</body>
+</html>
