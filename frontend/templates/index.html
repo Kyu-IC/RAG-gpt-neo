@@ -1,26 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Tea Wiki Q&A</title>
+    <title>Chatbot UI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: black;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        /* แถบสีเขียวด้านหลัง MyChat */
+        .header-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px; /* ปรับความสูงของแถบ */
+            background-color: #6ba36c;
+            z-index: 0; /* อยู่ด้านหลัง MyChat */
+        }
+
+        .navbar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            box-sizing: border-box;
+            z-index: 1; /* ให้อยู่ด้านหน้าแถบสี */
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: black; /* ทำให้ MyChat อ่านง่ายขึ้น */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 60px; /* ขยับลงให้พ้นแถบ */
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .chat-box {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-box {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 16px;
+        }
+
+        .send-btn {
+            padding: 12px 15px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 30px;
+            background-color: #6ba36c;
+            color: black;
+            cursor: pointer;
+        }
+
+        .send-btn:hover {
+            background-color: #444;
+        }
+
+        .chat-message {
+            max-width: 75%;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #6ba36c;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background-color: #ffffff;
+            color: black;
+            align-self: flex-start;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Green Tea Wiki Q&A</h1>
-        <form method="POST">
-            <input type="text" name="question" placeholder="Ask a question">
-            <button type="submit">Submit</button>
-        </form>
-        
 
-        {% if response %}
-            <h2>Answer:</h2>
-            <p>{{ response }}</p>
-        {% else %}
-            <p>Please ask a question!</p>
-        {% endif %}
+    <!-- แถบสีเขียวด้านหลัง MyChat -->
+    <div class="header-bar"></div>
+
+    <div class="navbar">
+        <div class="logo">MyChat</div>
     </div>
+
+    <div class="container">
+        <h1>Ask me about green tea! 🍵</h1>
+        <div class="chat-box" id="chat-box">
+            <div class="chat-message bot-message">Hello!</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" class="input-box" placeholder="Type your question here...">
+            <button class="send-btn" onclick="sendMessage()">ส่ง</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const chatBox = document.getElementById("chat-box");
+            const message = inputField.value.trim();
+            
+            if (!message) return;
+
+            // เพิ่มข้อความของผู้ใช้
+            const userMessage = document.createElement("div");
+            userMessage.className = "chat-message user-message";
+            userMessage.textContent = message;
+            chatBox.appendChild(userMessage);
+
+            inputField.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // ส่งไปที่ API
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+
+                // เพิ่มข้อความของบอท
+                const botMessage = document.createElement("div");
+                botMessage.className = "chat-message bot-message";
+                botMessage.textContent = data.response;
+                chatBox.appendChild(botMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                console.error("Error fetching chatbot response:", error);
+            }
+        }
+    </script>
 </body>
 </html>
